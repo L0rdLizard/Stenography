@@ -113,7 +113,7 @@ def main():
     steganography = KochSteganography(threshold=50)
     
     # Тестовое сообщение
-    message = "Love GUAP and evermore! Hello world"
+    message = "Love GUAP and evermore!"
     
     # Встраивание сообщения
     print("Встраивание сообщения...")
