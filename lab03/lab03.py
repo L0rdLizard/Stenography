@@ -20,13 +20,11 @@ def embed_message(image_path, message, output_path, key):
         x1, y1 = random.randint(0, image_array.shape[0] - 1), random.randint(0, image_array.shape[1] - 1)
         x2, y2 = random.randint(0, image_array.shape[0] - 1), random.randint(0, image_array.shape[1] - 1)
 
-        # Внедрение бита в разность пикселей
+        # Внедрение бита путем изменения значения яркости
         if bit == '1':
-            if image_array[x1, y1, 0] > image_array[x2, y2, 0]:
-                image_array[x1, y1, 0], image_array[x2, y2, 0] = image_array[x2, y2, 0], image_array[x1, y1, 0]
+            image_array[x1, y1, 0] = min(255, image_array[x1, y1, 0] + 1)
         else:
-            if image_array[x1, y1, 0] < image_array[x2, y2, 0]:
-                image_array[x1, y1, 0], image_array[x2, y2, 0] = image_array[x2, y2, 0], image_array[x1, y1, 0]
+            image_array[x1, y1, 0] = max(0, image_array[x1, y1, 0] - 1)
 
     # Сохранение нового изображения с внедренным сообщением
     result_image = Image.fromarray(image_array)
