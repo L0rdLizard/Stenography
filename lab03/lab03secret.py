@@ -30,10 +30,11 @@ def bits_to_text(bits):
     for i in range(0, len(bits), 8):
         byte = bits[i:i+8]
         ascii_code = int(byte, 2)
-        if 128 <= ascii_code <= 159:
-            chars.append(ascii_to_russian[ascii_code])
-        else:
-            chars.append(chr(ascii_code))
+        chars.append(chr(ascii_code))
+        # if 128 <= ascii_code <= 159:
+        #     chars.append(ascii_to_russian[ascii_code])
+        # else:
+        #     chars.append(chr(ascii_code))
     return ''.join(chars)
 
 def dct2(block):
@@ -60,7 +61,7 @@ def embed_message(image_path, message, seed_key=42):
         dct_block = dct2(block)
         
         # Choose two symmetric coefficients in mid-frequency range
-        c1, c2 = (3, 4), (4, 3)
+        c1, c2 = (3, 5), (5, 3)
         
         # Embed the bit
         if message_bits[bit_index] == '1':
@@ -92,7 +93,7 @@ def extract_message(stego_path, bits_count, seed_key=42):
         block = stego_img[i:i+8, j:j+8, 0].astype(float)
         dct_block = dct2(block)
         
-        c1, c2 = (3, 4), (4, 3)
+        c1, c2 = (3, 5), (5, 3)
         
         # Extract the bit
         if abs(dct_block[c1]) > abs(dct_block[c2]):
@@ -106,7 +107,7 @@ def extract_message(stego_path, bits_count, seed_key=42):
 
 # Test the updated implementation
 input_image = "clown.bmp"
-message = "Hello world"
+message = "Love GUAP"
 
 bits_embedded = embed_message(input_image, message)
 print(f"Number of embedded bits: {bits_embedded}")
