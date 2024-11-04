@@ -42,7 +42,7 @@ def dct2(block):
 def idct2(block):
     return scipy.fftpack.idct(scipy.fftpack.idct(block.T, norm='ortho').T, norm='ortho')
 
-def embed_message(image_path, message, alpha, seed_key=42):
+def embed_message(image_path, message, seed_key=42):
     img = Image.open(image_path).convert('YCbCr')
     img_array = np.array(img)
     
@@ -59,13 +59,17 @@ def embed_message(image_path, message, alpha, seed_key=42):
         block = img_array[i:i+8, j:j+8, 0].astype(float)
         dct_block = dct2(block)
         
+        # Choose two symmetric coefficients in mid-frequency range
+        c1, c2 = (3, 4), (4, 3)
+        
+        # Embed the bit
         if message_bits[bit_index] == '1':
-            dct_block[3, 3] += alpha
-            dct_block[4, 4] -= alpha
+            if abs(dct_block[c1]) < abs(dct_block[c2]):
+                dct_block[c1], dct_block[c2] = dct_block[c2], dct_block[c1]
         else:
-            dct_block[3, 3] -= alpha
-            dct_block[4, 4] += alpha
-            
+            if abs(dct_block[c1]) > abs(dct_block[c2]):
+                dct_block[c1], dct_block[c2] = dct_block[c2], dct_block[c1]
+                
         img_array[i:i+8, j:j+8, 0] = idct2(dct_block)
         bit_index += 1
     
@@ -73,7 +77,7 @@ def embed_message(image_path, message, alpha, seed_key=42):
     stego_image.save("stego_output.bmp")
     return bits_count
 
-def extract_message(stego_path, bits_count, alpha, seed_key=42):
+def extract_message(stego_path, bits_count, seed_key=42):
     stego_img = np.array(Image.open(stego_path).convert('YCbCr'))
     extracted_bits = ""
     
@@ -88,7 +92,10 @@ def extract_message(stego_path, bits_count, alpha, seed_key=42):
         block = stego_img[i:i+8, j:j+8, 0].astype(float)
         dct_block = dct2(block)
         
-        if dct_block[3, 3] > dct_block[4, 4]:
+        c1, c2 = (3, 4), (4, 3)
+        
+        # Extract the bit
+        if abs(dct_block[c1]) > abs(dct_block[c2]):
             extracted_bits += '1'
         else:
             extracted_bits += '0'
@@ -99,11 +106,10 @@ def extract_message(stego_path, bits_count, alpha, seed_key=42):
 
 # Test the updated implementation
 input_image = "clown.bmp"
-message = "Заходят как-то в бар русский немец и якут"
-alpha = 40  # Strength of embedding
+message = "Hello world"
 
-bits_embedded = embed_message(input_image, message, alpha)
+bits_embedded = embed_message(input_image, message)
 print(f"Number of embedded bits: {bits_embedded}")
 
-extracted_message = extract_message("stego_output.bmp", bits_embedded, alpha)
+extracted_message = extract_message("stego_output.bmp", bits_embedded)
 print(f"Extracted message: {extracted_message}")
