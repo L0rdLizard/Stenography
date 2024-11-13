@@ -107,7 +107,7 @@ def extract_message(stego_path, bits_count, seed_key=42):
 
 # Test the updated implementation
 input_image = "clown.bmp"
-message = "Love GUAP and evermore!"
+message = "Love GUAP and SUAI!"
 
 bits_embedded = embed_message(input_image, message)
 print(f"Number of embedded bits: {bits_embedded}")
